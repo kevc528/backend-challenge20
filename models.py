@@ -9,6 +9,11 @@ tag_relations = db.Table('tag_relations',
     db.Column('club_id', db.Integer, db.ForeignKey('club.id'), primary_key=True)
 )
 
+favorites = db.Table('favorites',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('club_id', db.Integer, db.ForeignKey('club.id'), primary_key=True)
+)
+
 class Club(db.Model):
     # make the id column because I'm not sure if the code can change or not
     id = db.Column(db.Integer, primary_key=True)
@@ -16,6 +21,7 @@ class Club(db.Model):
     name = db.Column(db.String(120), unique=True, nullable=False)
     description = db.Column(db.Text)
     tags = db.relationship('Tag', secondary=tag_relations)
+    favorites = db.relationship('User', secondary=favorites)
 
     def __init__(self, code, name, description, tags):
         self.code = code
@@ -26,15 +32,10 @@ class Club(db.Model):
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag_name = db.Column(db.String(80), unique=True, nullable=False)
+    clubs = db.relationship('Club', secondary=tag_relations)
 
     def __init__(self, tag_name):
         self.tag_name = tag_name
-
-
-favorites = db.Table('favorites',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('club_id', db.Integer, db.ForeignKey('club.id'), primary_key=True)
-)
 
 
 class User(db.Model):

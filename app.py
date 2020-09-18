@@ -24,10 +24,12 @@ def main():
 def api():
     return jsonify({"message": "Welcome to the Penn Club Review API!."})
 
-@app.route('/api/user/<username>')
+@app.route('/api/user/<username>', methods=['GET'])
 @cross_origin()
 def get_user_profile(username):
     user = User.query.filter_by(username=username).first()
+    if user == None:
+        return jsonify({'status':'No such user'}), 400
     return jsonify({
         'name': user.name,
         'username': user.username
@@ -48,7 +50,7 @@ def get_clubs_keyword(keyword):
     return jsonify(club_list)
 
 def create_new_club(req_json):
-    if 'code' not in req_json or 'name' not in req_json:
+    if req_json == None or 'code' not in req_json or 'name' not in req_json:
         return jsonify({'status':'Bad request'}), 400
     else:
         try:
@@ -83,6 +85,79 @@ def get_club_list():
     else:
         req_json = request.get_json()
         return create_new_club(req_json)
+
+def favorite_club_post(req_json, club):
+    if req_json == None or 'user' not in req_json:
+        return jsonify({'status':'Bad request'}), 400
+    username = req_json['user']
+    user = User.query.filter_by(username=username).first()
+    if user == None:
+        return jsonify({'status':'No such user'}), 400
+    club_obj = Club.query.filter_by(name=club).first()
+    if club_obj == None:
+        return jsonify({'status':'No such club'}), 400
+    if club_obj in user.favorites:
+        user.favorites.remove(club_obj)
+    else:
+        user.favorites.append(club_obj)
+    db.session.commit()
+    return jsonify({'status':'success'}), 200
+
+def club_favorite_count(club):
+    club_obj = Club.query.filter_by(name=club).first()
+    if club_obj == None:
+        return jsonify({'status':'No such club'}), 400
+    return jsonify({'favorite count': len(club_obj.favorites)}), 200
+
+@app.route('/api/<club>/favorite', methods=['GET', 'POST'])
+@cross_origin()
+def favorite_club(club):
+    club = club.replace("%20", " ")
+    if request.method == 'POST':
+        return favorite_club_post(request.get_json(), club)
+    else:
+        return club_favorite_count(club)
+
+@app.route('/api/clubs/<code>', methods=['PATCH'])
+@cross_origin()
+def modify_club(code):
+    club_obj = Club.query.filter_by(code=code).first()
+    if club_obj == None:
+        return jsonify({'status':'No such club'}), 400 
+    req_json = request.get_json()
+    if 'tags' in req_json:
+        if not isinstance(req_json['tags'], list):
+            return jsonify({'status':'Bad request'}), 400 
+        tag_objs = []
+        for tag in req_json['tags']:
+            tag_obj = Tag.query.filter_by(tag_name=tag).first()
+            if tag_obj == None:
+                tag_obj = Tag(tag)
+                db.session.add(tag_obj)
+                db.session.commit()
+            tag_objs.append(tag_obj)
+        club_obj.tags = tag_objs
+    if 'name' in req_json:
+        club_obj.name = req_json['name']
+    if 'code' in req_json:
+        club_obj.code = req_json['code']
+    if 'description' in req_json:
+        club_obj.description = req_json['description']
+    db.session.commit()
+    return jsonify({'status':'success'}), 200 
+
+@app.route('/api/tag_count', methods=['GET'])
+@cross_origin()
+def tag_count():
+    counts = []
+    all_tags = Tag.query.all()
+    for tag in all_tags:
+        obj = {
+            'tag': tag.tag_name,
+            'count': len(tag.clubs)
+        }
+        counts.append(obj)
+    return jsonify(counts), 200
 
 if __name__ == '__main__':
     app.run()
