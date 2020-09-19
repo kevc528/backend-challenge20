@@ -60,19 +60,24 @@ class User(db.Model):
     """
     Model for a user
 
-    Columns: id (auto-incremented), username, name
+    Columns: id (auto-incremented), username, name, graduation year, major
     Relationships: favorites (Club that user likes), comments (Comment by user)
     """
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(80), nullable=False)
     name = db.Column(db.String(120), unique=True, nullable=False)
+    year = db.Column(db.Integer)
+    major = db.Column(db.String(80))
     favorites = db.relationship('Club', secondary=favorites)
     comments = db.relationship('Comment', backref='club_comments')
 
-    def __init__(self, username, name, favorites):
+    def __init__(self, username, password, name, year, major):
         self.username = username
+        self.password = password
         self.name = name
-        self.favorites = favorites
+        self.year = year
+        self.major = major
 
 class Comment(db.Model):
     """

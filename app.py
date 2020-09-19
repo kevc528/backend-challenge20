@@ -1,39 +1,40 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
 from sqlalchemy import exc
+import bcrypt
 
 DB_FILE = "clubreview.db"
 
 app = Flask(__name__)
-# needed CORS for requests to work
-cors = CORS(app)
+# needed CORS for requests to work w/ postman
+cors = CORS(app, supports_credentials=True)
+app.secret_key = b'\x9f1\xa1Z\\\xbe3U\x85N\xce\xcf\xa9\x864,KR\xd3a[XJU'
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_FILE}"
-app.config['CORS_HEADERS'] = 'Content-Type'
 db = SQLAlchemy(app)
 
 from models import *
+from bootstrap import user_signup
 
 
 @app.route('/')
-@cross_origin()
 def main():
     return "Welcome to Penn Club Review!"
 
 @app.route('/api')
-@cross_origin()
 def api():
     return jsonify({"message": "Welcome to the Penn Club Review API!."})
 
 @app.route('/api/user/<username>', methods=['GET'])
-@cross_origin()
 def get_user_profile(username):
     user = User.query.filter_by(username=username).first()
     if user == None:
-        return jsonify({'status':'No such user'}), 400
+        return jsonify({'message':'No such user'}), 400
     return jsonify({
         'name': user.name,
-        'username': user.username
+        'username': user.username,
+        'year': user.year,
+        'major': user.major
     })
 
 def get_clubs_keyword(keyword):
@@ -61,7 +62,7 @@ def create_new_club(req_json):
     Function used to create a new club passed in json format
     """
     if req_json == None or 'name' not in req_json:
-        return jsonify({'status':'Bad request'}), 400
+        return jsonify({'message':'Bad request'}), 400
     else:
         # try to generate acronym code in the case where no code is provided
         if 'code' not in req_json:
@@ -79,16 +80,16 @@ def create_new_club(req_json):
                         db.session.commit()
                     tag_objs.append(tag_obj)
             new_club = Club(req_json['code'], req_json['name'], 
-                req_json['description'] if 'description' in req_json else '', tag_objs)
+                req_json['description'] if 'description' in req_json else None, tag_objs)
             db.session.add(new_club)
             db.session.commit()
         except exc.IntegrityError:
             db.session.rollback()
-            return jsonify({'status':'Duplicate fields'}), 400
+            return jsonify({'message':'Duplicate fields'}), 400
         except Exception as e:
             print(e)
-            jsonify({'status':'Write error'}), 400
-    return jsonify({'status':'success'}), 200
+            jsonify({'message':'Write error'}), 400
+    return jsonify({'message':'success'}), 200
 
 def club_form_to_json(form):
     """
@@ -106,37 +107,40 @@ def club_form_to_json(form):
     return json
 
 @app.route('/api/clubs', methods=['POST', 'GET'])
-@cross_origin()
 def get_club_list():
     if request.method == 'GET':
         keyword = request.args.get('search')
         return get_clubs_keyword(keyword)
     else:
+        if 'username' not in session:
+            return jsonify({'message':'Access denied, please log in'}), 401
         req_json = request.get_json()
         if req_json == None:
             req_json = club_form_to_json(request.form)
         return create_new_club(req_json)
 
-def favorite_club_post(req_json, club):
+# Before implementing sessions, I would also need to pass 
+# in json request with the username and check to make sure 
+# that username exists
+def favorite_club_post(club):
     """
-    Function taking in a json request with username and 
-    favoriting/unfavoriting the club for that user
+    Function taking in a club and using the session 
+    user to favorite/unfavorite
     """
-    if req_json == None or 'user' not in req_json:
-        return jsonify({'status':'Bad request'}), 400
-    username = req_json['user']
+    username = session['username']
     user = User.query.filter_by(username=username).first()
-    if user == None:
-        return jsonify({'status':'No such user'}), 400
+    # NOT NEEDED ANYMORE SINCE WE HAVE SESSION
+    # if user == None:
+    #     return jsonify({'message':'No such user'}), 400
     club_obj = Club.query.filter_by(name=club).first()
     if club_obj == None:
-        return jsonify({'status':'No such club'}), 400
+        return jsonify({'message':'No such club'}), 400
     if club_obj in user.favorites:
         user.favorites.remove(club_obj)
     else:
         user.favorites.append(club_obj)
     db.session.commit()
-    return jsonify({'status':'success'}), 200
+    return jsonify({'message':'success'}), 200
 
 def club_favorite_count(club):
     """
@@ -144,28 +148,30 @@ def club_favorite_count(club):
     """
     club_obj = Club.query.filter_by(name=club).first()
     if club_obj == None:
-        return jsonify({'status':'No such club'}), 400
+        return jsonify({'message':'No such club'}), 400
     return jsonify({'favorite count': len(club_obj.favorites)}), 200
 
 @app.route('/api/<club>/favorite', methods=['GET', 'POST'])
-@cross_origin()
 def favorite_club(club):
     if request.method == 'POST':
-        return favorite_club_post(request.get_json(), club)
+        if 'username' not in session:
+            return jsonify({'message':'Access denied, please log in'}), 401
+        return favorite_club_post(club)
     else:
         return club_favorite_count(club)
 
 @app.route('/api/clubs/<code>', methods=['PATCH'])
-@cross_origin()
 def modify_club(code):
+    if 'username' not in session:
+        return jsonify({'message':'Access denied, please log in'}), 401
     club_obj = Club.query.filter_by(code=code).first()
     if club_obj == None:
-        return jsonify({'status':'No such club'}), 400 
+        return jsonify({'message':'No such club'}), 400 
     req_json = request.get_json()
     # check which fields need to be updated
     if 'tags' in req_json:
         if not isinstance(req_json['tags'], list):
-            return jsonify({'status':'Bad request'}), 400 
+            return jsonify({'message':'Bad request'}), 400 
         tag_objs = []
         for tag in req_json['tags']:
             tag_obj = Tag.query.filter_by(tag_name=tag).first()
@@ -183,10 +189,9 @@ def modify_club(code):
     if 'description' in req_json:
         club_obj.description = req_json['description']
     db.session.commit()
-    return jsonify({'status':'success'}), 200 
+    return jsonify({'message':'success'}), 200 
 
 @app.route('/api/tag_count', methods=['GET'])
-@cross_origin()
 def tag_count():
     counts = []
     all_tags = Tag.query.all()
@@ -200,21 +205,23 @@ def tag_count():
 
 def add_comment(club, req_json):
     """
-    Adds comment (in json) for the club specified into the database
+    Adds comment (text in json) for the club specified into the database. 
+    The author will be the current signed in user
     """
-    if req_json == None or 'user' not in req_json or 'text' not in req_json:
-        return jsonify({'status':'Bad request'}), 400
-    username = req_json['user']
+    if req_json == None or 'text' not in req_json:
+        return jsonify({'message':'Bad request'}), 400
+    username = session['username']
     user = User.query.filter_by(username=username).first()
-    if user == None:
-        return jsonify({'status':'No such user'}), 400
+    # NOT NEEDED ANYMORE SINCE WE HAVE SESSION
+    # if user == None:
+    #     return jsonify({'message':'No such user'}), 400
     club_obj = Club.query.filter_by(name=club).first()
     if club_obj == None:
-        return jsonify({'status':'No such club'}), 400
+        return jsonify({'message':'No such club'}), 400
     comment_obj = Comment(user.id, club_obj.id, req_json['text'])
     club_obj.comments.append(comment_obj)
     db.session.commit()
-    return jsonify({'status':'success'}), 200
+    return jsonify({'message':'success'}), 200
 
 def get_club_comments(club):
     """
@@ -223,7 +230,7 @@ def get_club_comments(club):
     """
     club_obj = Club.query.filter_by(name=club).first()
     if club_obj == None:
-        return jsonify({'status':'No such club'}), 400
+        return jsonify({'message':'No such club'}), 400
     comments = club_obj.comments
     comment_json_list = []
     for comment in comments:
@@ -237,10 +244,53 @@ def get_club_comments(club):
 @app.route('/api/<club>/comment', methods=['GET', 'POST'])
 def club_comments(club):
     if request.method == 'POST':
+        if 'username' not in session:
+            return jsonify({'message':'Access denied, please log in'}), 401
         req_json = request.get_json()
         return add_comment(club, req_json)
     else:
         return get_club_comments(club)
+
+@app.route('/api/signup', methods=['POST'])
+def create_user():
+    req_json = request.get_json()
+    if (req_json == None or 'username' not in req_json or 
+            'password' not in req_json or 'name' not in req_json):
+        return jsonify({'message':'Bad request'}), 400
+    username = req_json['username']
+    password = req_json['password']
+    name = req_json['name']
+    year = req_json['year'] if 'year' in req_json else None
+    major = req_json['major'] if 'major' in req_json else None
+    try:
+        user_signup(username, password, name, year, major)
+    except exc.IntegrityError:
+        return jsonify({'message':'Username already exists'}), 400
+    session['username'] = username
+    return jsonify({'message':'success'}), 200
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    req_json = request.get_json()
+    if 'username' not in req_json or 'password' not in req_json:
+        return jsonify({'message':'Bad request'}), 400
+    username = req_json['username']
+    password = req_json['password']
+    user = User.query.filter_by(username=username).first()
+    password_b = password.encode('utf-8')
+    hashed = user.password
+    if bcrypt.checkpw(password_b, hashed):
+        session['username'] = username
+        return jsonify({'message':'success'}), 200
+    else:
+        return jsonify({'message':'Login failed'}), 401
+
+@app.route('/api/logout', methods=['GET'])
+def logout():
+    username = session.pop('username', None)
+    if username != None:
+        return jsonify({'message':'Logged out of ' + username}), 200
+    return jsonify({'message':'success'}), 200
 
 if __name__ == '__main__':
     app.run()
