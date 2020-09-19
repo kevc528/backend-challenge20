@@ -2,6 +2,7 @@ import os
 import json
 from app import db, DB_FILE
 from models import *
+from webscraper import scrape_clubs
 
 def user_signup(username, name, favorites):
     new_user = User(username, name, favorites)
@@ -14,10 +15,7 @@ def user_signup(username, name, favorites):
 def create_user():
     user_signup('josh', 'Josh', [])
 
-
-def load_data():
-    with open('clubs.json') as fObj:
-        clubs = json.load(fObj)
+def create_clubs_from_json(clubs):
     tag_map = {}
     for club in clubs:
         tag_objs = []
@@ -32,6 +30,15 @@ def load_data():
     db.session.commit()
 
 
+def load_data():
+    with open('clubs.json') as fObj:
+        clubs = json.load(fObj)
+    create_clubs_from_json(clubs)
+
+def load_scraped_data():
+    clubs = scrape_clubs()
+    create_clubs_from_json(clubs)
+
 # No need to modify the below code.
 if __name__ == '__main__':
     if os.path.exists(DB_FILE):
@@ -40,3 +47,4 @@ if __name__ == '__main__':
     db.create_all()
     create_user()
     load_data()
+    load_scraped_data()
