@@ -50,9 +50,11 @@ def get_clubs_keyword(keyword):
     return jsonify({'clubs': club_list}), 200
 
 def create_new_club(req_json):
-    if req_json == None or 'code' not in req_json or 'name' not in req_json:
+    if req_json == None or 'name' not in req_json:
         return jsonify({'status':'Bad request'}), 400
     else:
+        if 'code' not in req_json:
+           req_json['code'] = "".join(word[0] for word in req_json['name'].split()) 
         try:
             tag_objs = []
             if 'tags' in req_json:
@@ -76,6 +78,18 @@ def create_new_club(req_json):
             jsonify({'status':'Write error'}), 400
     return jsonify({'status':'success'}), 200
 
+def club_form_to_json(form):
+    json = {}
+    if 'name' in form:
+        json['name'] = form['name']
+    if 'description' in form:
+        json['description'] = form['description']
+    if 'code' in form:
+        json['code'] = form['code']
+    if 'tags' in form:
+        json['tags'] = form.getlist('tags')
+    return json
+
 @app.route('/api/clubs', methods=['POST', 'GET'])
 @cross_origin()
 def get_club_list():
@@ -84,6 +98,8 @@ def get_club_list():
         return get_clubs_keyword(keyword)
     else:
         req_json = request.get_json()
+        if req_json == None:
+            req_json = club_form_to_json(request.form)
         return create_new_club(req_json)
 
 def favorite_club_post(req_json, club):
