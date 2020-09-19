@@ -67,15 +67,17 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
     name = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(80), nullable=False)
     year = db.Column(db.Integer)
     major = db.Column(db.String(80))
     favorites = db.relationship('Club', secondary=favorites)
     comments = db.relationship('Comment', backref='club_comments')
 
-    def __init__(self, username, password, name, year, major):
+    def __init__(self, username, password, name, email, year, major):
         self.username = username
         self.password = password
         self.name = name
+        self.email = email
         self.year = year
         self.major = major
 

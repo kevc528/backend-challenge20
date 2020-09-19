@@ -255,15 +255,17 @@ def club_comments(club):
 def create_user():
     req_json = request.get_json()
     if (req_json == None or 'username' not in req_json or 
-            'password' not in req_json or 'name' not in req_json):
+            'password' not in req_json or 'name' not in req_json or
+            'email' not in req_json):
         return jsonify({'message':'Bad request'}), 400
     username = req_json['username']
     password = req_json['password']
     name = req_json['name']
+    email = req_json['email']
     year = req_json['year'] if 'year' in req_json else None
     major = req_json['major'] if 'major' in req_json else None
     try:
-        user_signup(username, password, name, year, major)
+        user_signup(username, password, name, email, year, major)
     except exc.IntegrityError:
         return jsonify({'message':'Username already exists'}), 400
     session['username'] = username
@@ -277,6 +279,8 @@ def login():
     username = req_json['username']
     password = req_json['password']
     user = User.query.filter_by(username=username).first()
+    if user == None:
+        return jsonify({'message':"Username doesn't exist"}), 401
     password_b = password.encode('utf-8')
     hashed = user.password
     if bcrypt.checkpw(password_b, hashed):
@@ -291,6 +295,51 @@ def logout():
     if username != None:
         return jsonify({'message':'Logged out of ' + username}), 200
     return jsonify({'message':'success'}), 200
+
+@app.route('/api/emails/<code>', methods=['GET'])
+def mailing_list(code):
+    # here we only want signed in users to access
+    # don't want anyone to see student emails
+    if 'username' not in session:
+        return jsonify({'message':'Access denied, please log in'}), 401
+    club_obj = Club.query.filter_by(code=code).first()
+    if club_obj == None:
+        return jsonify({'message':'No such club'}), 400
+    emails = []
+    for user in club_obj.favorites:
+        emails.append(user.email)
+    return jsonify(emails), 200
+
+@app.route('/api/user', methods=['PATCH'])
+def update_user():
+    if 'username' not in session:
+        return jsonify({'message':'Access denied, please log in'}), 401
+    username = session['username']
+    user_obj = User.query.filter_by(username=username).first()
+    req_json = request.get_json()
+    # check which fields need to be updated
+    if 'username' in req_json:
+        user_obj.username = req_json['username']
+    if 'password' in req_json:
+        b_password = req_json['password'].encode("utf-8")
+        hashed = bcrypt.hashpw(b_password, bcrypt.gensalt())
+        user_obj.password = hashed
+    if 'name' in req_json:
+        user_obj.name = req_json['name']
+    if 'email' in req_json:
+        user_obj.email = req_json['email']
+    if 'year' in req_json:
+        user_obj.year = req_json['year']
+    if 'major' in req_json:
+        user_obj.major = req_json['major']
+    try:
+        db.session.commit()
+        # need to change the session username if it's updated
+        if 'username' in req_json:
+            session['username'] = req_json['username']
+        return jsonify({'message':'success'}), 200
+    except exc.IntegrityError:
+        return jsonify({'message':'Username already exists'}), 400
 
 if __name__ == '__main__':
     app.run()

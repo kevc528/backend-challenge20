@@ -73,13 +73,14 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
     name = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(80), nullable=False)
     year = db.Column(db.Integer)
     major = db.Column(db.String(80))
     favorites = db.relationship('Club', secondary=favorites)
     comments = db.relationship('Comment', backref='club_comments')
 ```
 The User model is pretty simple. It would maintain the user's 
-information like username, password, name, year, major. Note, 
+information like username, password, name, email, year, major. Note, 
 that even though password is stored, it is a secure hashed 
 password using bcrypt. Also, I wanted to be able to access 
 favorites and comments through relationships. The primary key 
@@ -183,8 +184,8 @@ too.
 Sample request body for changing name and tag fields:
 ```
 {
-    "name": "Water Lover Club",
-    "tags": ["Undergraduate", "Health", "Meme", "Graduate"]
+    "name": "Penn Lorem Ipsum Club",
+    "tags": ["Undergraduate", "Literary", "Graduate"]
 }
 ```
 
@@ -226,6 +227,7 @@ Sample request body:
     "username": "kevin",
     "name": "Kevin Chen",
     "password": "Password1!",
+    "email": "kevin@gmail.com",
     "year": 2023,
     "major": "Computer Science"
 }
@@ -248,6 +250,33 @@ Sample request body:
 #### GET `/api/logout`
 This is the endpoint used to logout of a user that is signed in. 
 This will remove the username from the session.
+
+#### GET `/api/emails/:code`
+This will get a mailing list for the club with the matching club code. 
+The mailing list is the emails of all the users that liked the club. 
+Note that for this request, there needs to be a signed in user. I didn't 
+want to make it so users that weren't signed in could see people's 
+emails.
+
+#### PATCH `/api/user`
+This will update the user profile of the user that is currently signed 
+in. That means to use this request route, you will need to be signed 
+in. You can modify username, password, name, email, year, and major. 
+If the username is updated, the username stored by the session is also 
+updated to maintain consistency. Like account creation, if username is 
+already taken, and error message describing this will be returned.
+
+Sample request body:
+```
+{
+    "name": "New User Changed",
+    "username": "newuserchanged",
+    "password": "Password2!",
+    "email": "newuserchanged@gmail.com",
+    "year": 2022,
+    "major": "Economics"
+}
+```
 
 ### Bonus Features
 #### Scraping
@@ -284,6 +313,13 @@ require a user to be logged in. Otherwise, the response would
 be "access denied". Additionally, with session state, I could 
 get rid of the username field in request bodies, and instead 
 use the username stored by the session.
+
+#### New API Routes
+The fourth bonus feature was one that I made up. I decided to add 
+a few additonal routes that made sense. A route I added allowed 
+clubs to `GET` a mailing list of user's who've favorited the club. 
+Another route I added allowed a `PATCH` that could update User 
+information. More detail on these routes are above in the API section.
 
 ## Installation
 

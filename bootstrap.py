@@ -5,20 +5,20 @@ from models import *
 from webscraper import scrape_clubs
 import bcrypt
 
-def user_signup(username, password, name, year, major):
+def user_signup(username, password, name, email, year, major):
     """
     Used to create a new user - signup function 
     Note that the password will be stored as a hash
     """
     b_password = password.encode("utf-8")
     hashed = bcrypt.hashpw(b_password, bcrypt.gensalt())
-    new_user = User(username, hashed, name, year, major)
+    new_user = User(username, hashed, name, email, year, major)
     db.session.add(new_user)
     db.session.commit()
 
 # creating josh's user
 def create_user():
-    user_signup('josh', 'Password1!', 'Josh', 2023, 'Computer Science')
+    user_signup('josh', 'Password1!', 'Josh', 'josh@gmail.com', 2023, 'Computer Science')
 
 def create_clubs_from_json(clubs):
     """
