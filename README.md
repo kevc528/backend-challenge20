@@ -29,6 +29,12 @@ The second relation I defined was favorites, which links users to
 their favorited clubs. This is similar to the club and tag 
 relationship above.
 
+Another relationship I had was comments, which you'll 
+see below within the models. Comments have a one-to-many 
+relationship, with clubs and users. Every comment can be 
+connected to one club or one user (the author), but users 
+and clubs can have many comments.
+
 #### Models
 ```
 class Club(db.Model):
@@ -38,6 +44,7 @@ class Club(db.Model):
     description = db.Column(db.Text)
     tags = db.relationship('Tag', secondary=tag_relations)
     favorites = db.relationship('User', secondary=favorites)
+    comments = db.relationship('Comment', backref='comments')
 ```
 For the Club model, I made the primary key the id. I wasn't sure 
 if the club's code could change or not - maybe a user changes the 
@@ -66,11 +73,24 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     name = db.Column(db.String(120), unique=True, nullable=False)
     favorites = db.relationship('Club', secondary=favorites)
+    comments = db.relationship('Comment', backref='club_comments')
 ```
 The User model is pretty simple. It would maintain the user's 
 information like username, name, and favorites (through 
 relationship previously defined). The primary key is id, because 
 name and username could potentially change.
+
+```
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    club_id = db.Column(db.Integer, db.ForeignKey('club.id'), nullable=False)
+    text = db.Column(db.Text, nullable=False)
+```
+Here is the model for comments, which was a bonus feature 
+that I pursued. Here we see the user_id and club_id 
+columns, which link the comment to the author and the 
+club it is talking about.
 
 ### API
 Here are the REST API routes I implemented. I tried to do as much 
@@ -149,6 +169,24 @@ Sample request body for changing name and tag fields:
 This request shows a list of tags with the number of clubs 
 associated with that club.
 
+#### GET `/api/:club/comment`
+The request will respond with a list of all the comments 
+for the club specified by name in route parameter.
+
+#### POST `/api/:club/comment`
+This request is used to create a comment for the club 
+with the name specified by the route parameter. The 
+request would have the author's username and the comment 
+text.
+
+Sample request body:
+```
+{
+    "user": "josh",
+    "text": "I love this club!!!!"
+}
+```
+
 ### Bonus Features
 #### Scraping
 The first bonus feature I decided to tackle was the web scraper. 
@@ -157,6 +195,18 @@ a method in `bootstrap.py` that would include all the scraped
 clubs in the database.
 
 For this section, I used Beautiful Soup.
+
+#### Club Comments
+The second bonus feature I did was implementing club 
+comments. To do this, I had to create a new Comment model 
+and create some new relationships with the Club and User 
+models.
+
+I also added a new route (GET and POST) to access 
+comments on a specified club, and create new comments.
+
+Implementation details can be found in the documentation 
+above.
 
 ## Installation
 

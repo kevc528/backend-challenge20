@@ -21,6 +21,7 @@ class Club(db.Model):
     description = db.Column(db.Text)
     tags = db.relationship('Tag', secondary=tag_relations)
     favorites = db.relationship('User', secondary=favorites)
+    comments = db.relationship('Comment', backref='comments')
 
     def __init__(self, code, name, description, tags):
         self.code = code
@@ -42,8 +43,20 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     name = db.Column(db.String(120), unique=True, nullable=False)
     favorites = db.relationship('Club', secondary=favorites)
+    comments = db.relationship('Comment', backref='club_comments')
 
     def __init__(self, username, name, favorites):
         self.username = username
         self.name = name
         self.favorites = favorites
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    club_id = db.Column(db.Integer, db.ForeignKey('club.id'), nullable=False)
+    text = db.Column(db.Text, nullable=False)
+
+    def __init__(self, user_id, club_id, text):
+        self.user_id = user_id
+        self.club_id = club_id
+        self.text = text

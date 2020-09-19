@@ -128,7 +128,6 @@ def club_favorite_count(club):
 @app.route('/api/<club>/favorite', methods=['GET', 'POST'])
 @cross_origin()
 def favorite_club(club):
-    club = club.replace("%20", " ")
     if request.method == 'POST':
         return favorite_club_post(request.get_json(), club)
     else:
@@ -174,6 +173,43 @@ def tag_count():
         }
         counts.append(obj)
     return jsonify(counts), 200
+
+def add_comment(club, req_json):
+    if req_json == None or 'user' not in req_json or 'text' not in req_json:
+        return jsonify({'status':'Bad request'}), 400
+    username = req_json['user']
+    user = User.query.filter_by(username=username).first()
+    if user == None:
+        return jsonify({'status':'No such user'}), 400
+    club_obj = Club.query.filter_by(name=club).first()
+    if club_obj == None:
+        return jsonify({'status':'No such club'}), 400
+    comment_obj = Comment(user.id, club_obj.id, req_json['text'])
+    club_obj.comments.append(comment_obj)
+    db.session.commit()
+    return jsonify({'status':'success'}), 200
+
+def get_club_comments(club):
+    club_obj = Club.query.filter_by(name=club).first()
+    if club_obj == None:
+        return jsonify({'status':'No such club'}), 400
+    comments = club_obj.comments
+    comment_json_list = []
+    for comment in comments:
+        author_obj = User.query.filter_by(id=comment.user_id).first()
+        comment_json_list.append({
+            'author': author_obj.username,
+            'text': comment.text
+        })
+    return jsonify(comment_json_list), 200
+
+@app.route('/api/<club>/comment', methods=['GET', 'POST'])
+def club_comments(club):
+    if request.method == 'POST':
+        req_json = request.get_json()
+        return add_comment(club, req_json)
+    else:
+        return get_club_comments(club)
 
 if __name__ == '__main__':
     app.run()

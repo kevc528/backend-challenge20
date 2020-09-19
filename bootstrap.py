@@ -8,9 +8,6 @@ def user_signup(username, name, favorites):
     new_user = User(username, name, favorites)
     db.session.add(new_user)
     db.session.commit()
-    # db.session.refresh(new_user)
-    # print(new_user.id)
-
 
 def create_user():
     user_signup('josh', 'Josh', [])
