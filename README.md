@@ -2,7 +2,155 @@
 
 ## Documentation
 
-Fill out this section as you complete the challenge!
+### Models
+#### Relationships
+Relationships were useful to have because many tables can be 
+related. For example, clubs and tags are related because clubs 
+can have tags describing them. And users and clubs are related 
+because users can favorite clubs.
+
+```
+tag_relations = db.Table('tag_relations',
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True),
+    db.Column('club_id', db.Integer, db.ForeignKey('club.id'), primary_key=True)
+)
+```
+The first relation that I defined was the club and tag relation. 
+This is a many to many relationship as clubs can have many tags 
+and a tag can be part of many clubs.
+
+```
+favorites = db.Table('favorites',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('club_id', db.Integer, db.ForeignKey('club.id'), primary_key=True)
+)
+```
+The second relation I defined was favorites, which links users to 
+their favorited clubs. This is similar to the club and tag 
+relationship above.
+
+#### Models
+```
+class Club(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(80), unique=True, nullable=False)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+    description = db.Column(db.Text)
+    tags = db.relationship('Tag', secondary=tag_relations)
+    favorites = db.relationship('User', secondary=favorites)
+```
+For the Club model, I made the primary key the id. I wasn't sure 
+if the club's code could change or not - maybe a user changes the 
+club name and wants to then change the club code as well, or if 
+the code gets leaked. But, if the club code is guaranteed to 
+never change, then it could be the primary key too.
+
+```
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tag_name = db.Column(db.String(80), unique=True, nullable=False)
+    clubs = db.relationship('Club', secondary=tag_relations)
+```
+Same concept here... if the tag name never changes then I 
+could've made that the primary key. But to be safe, I made the 
+id a primary key in case a Locust Labs member wanted to change 
+the capitalization or something about a tag name.
+
+Clubs and tags both store information about their relationship 
+defined above. This makes it easy to find tags for a club, and 
+clubs for a tag.
+
+```
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+    favorites = db.relationship('Club', secondary=favorites)
+```
+The User model is pretty simple. It would maintain the user's 
+information like username, name, and favorites (through 
+relationship previously defined). The primary key is id, because 
+name and username could potentially change.
+
+### API
+Here are the REST API routes I implemented. I tried to do as much 
+error checking with requests as possible. For example, checking 
+if the club or user in the request exists.
+
+#### GET `/api/user/:username`
+This request will return user information for the specific 
+username specified in the route paramter. Here we would only 
+expose the name and the username of the user for sake of privacy.
+
+#### GET `/api/clubs`
+This request returns a list of all clubs in JSON format.
+
+#### GET `/api/clubs?search=<QUERY>`
+This request will return clubs where the club name contains the 
+query string (case insensitive). Behind the scenes, a SQL `LIKE` 
+operator is used with `%<Query>%` on club names, which does a 
+case insensitive search to see if the query is a substring of 
+a club's name.
+
+#### POST `/api/clubs`
+This request can be used to create a new club. You just need to 
+specify club code and a club name in the request body. Tags and 
+description are optional.
+
+Sample Request Body:
+```
+{
+   "code":"abcd",
+   "name":"Water Club",
+   "description":"We love water",
+   "tags":["Undergraduate","Health","Graduate"]
+}
+```
+
+#### POST `/api/:club/favorite`
+This request is used to allow a user to favorite a specific club, 
+which is defined by name in the route parameter. The user is 
+defined in the request body. If the club is already favorited, 
+then this will unfavorite the club for the user.
+
+Sample Request Body:
+```
+{
+    "user": "josh"
+}
+```
+
+#### GET `/api/:club/favorite`
+This request returns the number of favorites for the club 
+specified by name in the route parameter.
+
+#### PATCH `/api/clubs/:code`
+This request will modify the club specified by club code in the 
+route parameter. You can modify anything about the club, except 
+for the primary key, the id. What's convenient about this request 
+is that you only need to specify the fields that are changing in 
+the request body.
+
+Sample request body for changing name and tag fields:
+```
+{
+    "name": "Water Lover Club",
+    "tags": ["Undergraduate", "Health", "Meme", "Graduate"]
+}
+```
+
+#### GET `/api/tag_count`
+This request shows a list of tags with the number of clubs 
+associated with that club.
+
+### Bonus Features
+#### Scraping
+The first bonus feature I decided to tackle was the web scraper. 
+I wrote web scraping code in `webscraper.py`. And then I wrote 
+a method in `bootstrap.py` that would include all the scraped 
+clubs in the database.
+
+For this section, I used Beautiful Soup.
 
 ## Installation
 

@@ -15,7 +15,6 @@ favorites = db.Table('favorites',
 )
 
 class Club(db.Model):
-    # make the id column because I'm not sure if the code can change or not
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(80), unique=True, nullable=False)
     name = db.Column(db.String(120), unique=True, nullable=False)
