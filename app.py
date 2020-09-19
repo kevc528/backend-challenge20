@@ -47,7 +47,7 @@ def get_clubs_keyword(keyword):
                 'description': club.description,
                 'tags': list(map(lambda x: x.tag_name, club.tags))
             })
-    return jsonify(club_list)
+    return jsonify({'clubs': club_list}), 200
 
 def create_new_club(req_json):
     if req_json == None or 'code' not in req_json or 'name' not in req_json:
