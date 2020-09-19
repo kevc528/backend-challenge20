@@ -3,26 +3,44 @@ from models import *
 import requests
 
 def get_content(url):
+    """
+    Fetch html content from a given url
+    """
     res = requests.get(url)
     return res.content
 
 def get_clubs(soup):
+    """
+    Get HTML of clubs from soup
+    """
     return soup.findAll('div', {'class': 'box'})
 
 def get_club_name(club):
+    """
+    Get club name from club html
+    """
     elts = club.findAll('strong', {'class': 'club-name'})
     if len(elts) < 1:
         return ''
     return elts[0].text
 
 def get_club_description(club):
+    """
+    Get club description from club html
+    """
     return club.em.text
 
 def get_club_tags(club):
+    """
+    Get club tags from club html
+    """
     elts = club.findAll('span', {'class': 'tag'})
     return list(map(lambda x: x.text, elts))
 
 def scrape_clubs():
+    """
+    Scrape the clubs from the site and return a list of json 
+    """
     url = 'https://ocwp.pennlabs.org'
     html = get_content(url)
     soup = BeautifulSoup(html, 'html.parser')

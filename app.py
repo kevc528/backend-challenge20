@@ -6,6 +6,7 @@ from sqlalchemy import exc
 DB_FILE = "clubreview.db"
 
 app = Flask(__name__)
+# needed CORS for requests to work
 cors = CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_FILE}"
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -36,6 +37,12 @@ def get_user_profile(username):
     })
 
 def get_clubs_keyword(keyword):
+    """
+    Function to get json club list by keyword.
+    In case of no keyword, or empty keyword, all clubs are returned. 
+    When keyword is specified, SQL 'LIKE' is used to find substring 
+    matches in the title.
+    """
     club_list = []
     if keyword == None or keyword == '':
         clubs = Club.query.all()
@@ -50,15 +57,20 @@ def get_clubs_keyword(keyword):
     return jsonify({'clubs': club_list}), 200
 
 def create_new_club(req_json):
+    """
+    Function used to create a new club passed in json format
+    """
     if req_json == None or 'name' not in req_json:
         return jsonify({'status':'Bad request'}), 400
     else:
+        # try to generate acronym code in the case where no code is provided
         if 'code' not in req_json:
            req_json['code'] = "".join(word[0] for word in req_json['name'].split()) 
         try:
             tag_objs = []
             if 'tags' in req_json:
                 tag_strings = req_json['tags']
+                # need to create any non-existing tags
                 for tag in tag_strings:
                     tag_obj = Tag.query.filter_by(tag_name=tag).first()
                     if tag_obj == None:
@@ -79,6 +91,9 @@ def create_new_club(req_json):
     return jsonify({'status':'success'}), 200
 
 def club_form_to_json(form):
+    """
+    Helper function used to convert form data into JSON
+    """
     json = {}
     if 'name' in form:
         json['name'] = form['name']
@@ -103,6 +118,10 @@ def get_club_list():
         return create_new_club(req_json)
 
 def favorite_club_post(req_json, club):
+    """
+    Function taking in a json request with username and 
+    favoriting/unfavoriting the club for that user
+    """
     if req_json == None or 'user' not in req_json:
         return jsonify({'status':'Bad request'}), 400
     username = req_json['user']
@@ -120,6 +139,9 @@ def favorite_club_post(req_json, club):
     return jsonify({'status':'success'}), 200
 
 def club_favorite_count(club):
+    """
+    Returns favorite count for specified club name
+    """
     club_obj = Club.query.filter_by(name=club).first()
     if club_obj == None:
         return jsonify({'status':'No such club'}), 400
@@ -140,12 +162,14 @@ def modify_club(code):
     if club_obj == None:
         return jsonify({'status':'No such club'}), 400 
     req_json = request.get_json()
+    # check which fields need to be updated
     if 'tags' in req_json:
         if not isinstance(req_json['tags'], list):
             return jsonify({'status':'Bad request'}), 400 
         tag_objs = []
         for tag in req_json['tags']:
             tag_obj = Tag.query.filter_by(tag_name=tag).first()
+            # creating any new tags
             if tag_obj == None:
                 tag_obj = Tag(tag)
                 db.session.add(tag_obj)
@@ -175,6 +199,9 @@ def tag_count():
     return jsonify(counts), 200
 
 def add_comment(club, req_json):
+    """
+    Adds comment (in json) for the club specified into the database
+    """
     if req_json == None or 'user' not in req_json or 'text' not in req_json:
         return jsonify({'status':'Bad request'}), 400
     username = req_json['user']
@@ -190,6 +217,10 @@ def add_comment(club, req_json):
     return jsonify({'status':'success'}), 200
 
 def get_club_comments(club):
+    """
+    Gets all comments for a specified club. 
+    Comment information includes author and text.
+    """
     club_obj = Club.query.filter_by(name=club).first()
     if club_obj == None:
         return jsonify({'status':'No such club'}), 400
