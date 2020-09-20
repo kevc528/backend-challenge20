@@ -220,7 +220,7 @@ session):
 
 #### POST `/api/signup`
 This post request is used for creating a new User. 
-It is required to have username, password, and name 
+It is required to have username, password, email, and name 
 in the request body. Year and major are optional 
 fields. It is important to note that the passwords 
 are stored securely witha hash. Another important 
@@ -250,7 +250,7 @@ Postman, the session only works for the desktop app.
 Sample request body:
 ```
 {
-    "username": "kevin",
+    "username": "josh",
     "password": "Password1!"
 }
 ```
