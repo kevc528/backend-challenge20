@@ -131,7 +131,8 @@ case insensitive search to see if the query is a substring of
 a club's name.
 
 #### POST `/api/clubs`
-**Requires Login**  
+**Requires Login**
+
 This request can be used to create a new club. You 
 just need to club name in the request body. If no 
 club code is specified (like in the request from 
@@ -160,7 +161,8 @@ Sample Request Body:
 ```
 
 #### POST `/api/:club/favorite`
-**Requires Login**  
+**Requires Login**
+
 This request is used to allow a user to favorite a specific club, 
 which is defined by name in the route parameter. The user is 
 defined from the session. If the club is already favorited, 
@@ -175,7 +177,8 @@ This request returns the number of favorites for the club
 specified by name in the route parameter.
 
 #### PATCH `/api/clubs/:code`
-**Requires Login**  
+**Requires Login**
+
 This request will modify the club specified by club code in the 
 route parameter. You can modify anything about the club, except 
 for the primary key, the id. What's convenient about this request 
@@ -201,7 +204,8 @@ The request will respond with a list of all the comments
 for the club specified by name in route parameter.
 
 #### POST `/api/:club/comment`
-**Requires Login**  
+**Requires Login**
+
 This request is used to create a comment for the club 
 with the name specified by the route parameter. The 
 request would have the comment text.
@@ -256,7 +260,8 @@ This is the endpoint used to logout of a user that is signed in.
 This will remove the username from the session.
 
 #### GET `/api/emails/:code`
-**Requires Login**  
+**Requires Login**
+
 This will get a mailing list for the club with the matching club code. 
 The mailing list is the emails of all the users that liked the club. 
 Note that for this request, there needs to be a signed in user. I didn't 
@@ -264,7 +269,8 @@ want to make it so users that weren't signed in could see people's
 emails.
 
 #### PATCH `/api/user`
-**Requires Login**  
+**Requires Login**
+
 This will update the user profile of the user that is currently signed 
 in. That means to use this request route, you will need to be signed 
 in. You can modify username, password, name, email, year, and major. 
