@@ -341,5 +341,20 @@ def update_user():
     except exc.IntegrityError:
         return jsonify({'message':'Username already exists'}), 400
 
+@app.route('/api/clubs/<tag>', methods=['GET'])
+def get_clubs_by_tag(tag):
+    tag_obj = Tag.query.filter_by(tag_name=tag).first()
+    if tag_obj == None:
+        return jsonify({'message':'No such tag'}), 400
+    club_list = []
+    tagged_clubs = tag_obj.clubs
+    for club in tagged_clubs:
+        club_list.append({
+            'name': club.name,
+            'description': club.description,
+            'tags': list(map(lambda x: x.tag_name, club.tags))
+        })
+    return jsonify(club_list), 200
+
 if __name__ == '__main__':
     app.run()

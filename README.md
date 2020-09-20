@@ -278,6 +278,10 @@ Sample request body:
 }
 ```
 
+#### GET `/api/clubs/:tag`
+This `GET` request will fetch all of the clubs that have the tag 
+specified in the route.
+
 ### Bonus Features
 #### Scraping
 The first bonus feature I decided to tackle was the web scraper. 
@@ -293,7 +297,7 @@ comments. To do this, I had to create a new Comment model
 and create some new relationships with the Club and User 
 models.
 
-I also added a new route (GET and POST) to access 
+I also added a new route (`GET` and `POST`) to access 
 comments on a specified club, and create new comments.
 
 Implementation details can be found in the documentation 
@@ -319,7 +323,10 @@ The fourth bonus feature was one that I made up. I decided to add
 a few additonal routes that made sense. A route I added allowed 
 clubs to `GET` a mailing list of user's who've favorited the club. 
 Another route I added allowed a `PATCH` that could update User 
-information. More detail on these routes are above in the API section.
+information. I also added a `GET` route that returns all the clubs 
+containing a specified tag.
+
+More detail on these routes are above in the API section.
 
 ## Installation
 
