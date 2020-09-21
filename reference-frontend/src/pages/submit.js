@@ -29,7 +29,7 @@ function Submit() {
         <Centered className="col-md-6 mt-4">
             <form onSubmit={submitClub}>
                 <div className="form-group">
-                    <label for="name">Club name</label>
+                    <label for="name">Club name *</label>
                     <input type="text" className="form-control" id="name" name="name" placeholder="Locust Labs" required></input>
                 </div>
                 <br></br>

@@ -368,12 +368,12 @@ the could unclick the tag and do so. This utilized the a `GET` request on
 one of the bonus API routes I implemented, `/api/clubs/:tag`, which filters 
 clubs by tag.
 
-Additionally, I implemented login and logout on the frontend that will maintain 
-the user's session. Logging in is important because only then can you create 
+Additionally, I implemented signup, login, and logout on the frontend that will maintain 
+the user's session. Being logged in is important because only then can you create 
 clubs due to the restriction that the `POST` request to create a club is only 
 authorized for signed in users.
 
-After implementing login/logout, I updated the submit clubs page. I updated the 
+After implementing signup/login/logout, I updated the submit clubs page. I updated the 
 page to include a multiselect field so users can select tags when creating a club. 
 The multiselect field 
 for the tags were populated by the results of the `GET` request on a bonus route 

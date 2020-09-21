@@ -2,6 +2,7 @@ import React from 'react'
 import Home from './pages/home';
 import Submit from './pages/submit';
 import Login from './pages/login';
+import Signup from './pages/signup';
 import {
     BrowserRouter as Router,
     Switch,
@@ -24,6 +25,7 @@ function App() {
                             <li><Link className="nav-link" to="/">Home</Link></li>
                             <li><Link className="nav-link" to="/submit">Submit</Link></li>
                             <li><Link className="nav-link" to="/login">Login</Link></li>
+                            <li><Link className="nav-link" to="/signup">Signup</Link></li>
                             <li><a style={{cursor: "pointer"}} className="nav-link" onClick={logout}>Logout</a></li>
                         </ul>
                     </div>
@@ -38,6 +40,9 @@ function App() {
                 </Route>
                 <Route path="/login">
                     <Login />
+                </Route>
+                <Route path="/signup">
+                    <Signup />
                 </Route>
             </Switch>
         </Router>
