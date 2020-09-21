@@ -294,7 +294,7 @@ Sample request body:
 This `GET` request will fetch all of the clubs that have the tag 
 specified in the route.
 
-### Bonus Features
+## Bonus Features
 #### Scraping
 The first bonus feature I decided to tackle was the web scraper. 
 I wrote web scraping code in `webscraper.py`. And then I wrote 
