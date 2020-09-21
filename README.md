@@ -295,7 +295,7 @@ This `GET` request will fetch all of the clubs that have the tag
 specified in the route.
 
 ## Bonus Features
-#### Scraping
+### Scraping
 The first bonus feature I decided to tackle was the web scraper. 
 I wrote web scraping code in `webscraper.py`. And then I wrote 
 a method in `bootstrap.py` that would include all the scraped 
@@ -303,7 +303,7 @@ clubs in the database.
 
 For this section, I used Beautiful Soup.
 
-#### Club Comments
+### Club Comments
 The second bonus feature I did was implementing club 
 comments. To do this, I had to create a new Comment model 
 and create some new relationships with the Club and User 
@@ -315,7 +315,7 @@ comments on a specified club, and create new comments.
 Implementation details can be found in the documentation 
 above.
 
-#### Login/Logout/Signup
+### Login/Logout/Signup
 The third bonus feature I did was implementing login/logout/signup 
 and also implementing session state. This bonus required me to use 
 bcrypt and flask sessions.
@@ -330,7 +330,7 @@ be "access denied". Additionally, with session state, I could
 get rid of the username field in request bodies, and instead 
 use the username stored by the session.
 
-#### New API Routes
+### New API Routes
 The fourth bonus feature was one that I made up. I decided to add 
 a few additonal routes that made sense. 
 
@@ -342,7 +342,7 @@ who've favorited the club.
 
 More detail on these routes are above in the API section.
 
-#### Frontend/Full-Stack
+### Frontend/Full-Stack
 The fifth bonus feature I worked on was the frontend. For this part, I 
 mainly worked on writing code that allowed the frontend to support tags. 
 I was able to get the tabs to display on the cards for each club.
@@ -351,6 +351,11 @@ I also wrote code that allows a user to click on one of these tags to filter the
 club list by that tag. And if the user wanted to go back to the main list, 
 the could unclick the tag and do so. This utilized the a `GET` request on 
 one of the bonus API routes I implemented, `/api/clubs/:tag`.
+
+Additionally, I implemented login and logout on the frontend that will maintain 
+the user's session. Logging in is important because only then can you create 
+clubs due to the restriction that the `POST` request to create a club is only 
+authorized for signed in users.
 
 ## Installation
 

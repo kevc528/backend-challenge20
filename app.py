@@ -274,7 +274,8 @@ def create_user():
 @app.route('/api/login', methods=['POST'])
 def login():
     req_json = request.get_json()
-    if 'username' not in req_json or 'password' not in req_json:
+    print(req_json)
+    if req_json == None or 'username' not in req_json or 'password' not in req_json:
         return jsonify({'message':'Bad request'}), 400
     username = req_json['username']
     password = req_json['password']

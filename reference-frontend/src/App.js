@@ -1,6 +1,7 @@
 import React from 'react'
 import Home from './pages/home';
 import Submit from './pages/submit';
+import Login from './pages/login';
 import {
     BrowserRouter as Router,
     Switch,
@@ -22,6 +23,8 @@ function App() {
                         <ul className="navbar-nav mr-auto">
                             <li><Link className="nav-link" to="/">Home</Link></li>
                             <li><Link className="nav-link" to="/submit">Submit</Link></li>
+                            <li><Link className="nav-link" to="/login">Login</Link></li>
+                            <li><a className="nav-link" href="http://localhost:5000/api/logout">Logout</a></li>
                         </ul>
                     </div>
                 </nav>
@@ -32,6 +35,9 @@ function App() {
                 </Route>
                 <Route path="/submit">
                     <Submit />
+                </Route>
+                <Route path="/login">
+                    <Login />
                 </Route>
             </Switch>
         </Router>
