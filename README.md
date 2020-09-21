@@ -307,7 +307,7 @@ specified in the route.
 This `GET` request will get the list of all tags in the database. This 
 is useful for the multiselect tags for creating a club on the frontend.
 
-## Bonus Features
+## Bonus Features: Scraping, Comments, Login/Logout/Signup, New API Routes, Frontend
 ### Scraping
 The first bonus feature I decided to tackle was the web scraper. 
 I wrote web scraping code in `webscraper.py`. And then I wrote 
