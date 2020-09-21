@@ -10,7 +10,7 @@ const Centered = styled.div`
 function Login() {
     return (
         <Centered className="col-md-6 mt-4">
-            <form>
+            <form onSubmit={tryLogin}>
                 <div className="form-group">
                     <label for="username">Username</label>
                     <input type="text" className="form-control" id="username" name="username" placeholder="username" required></input>
@@ -20,7 +20,7 @@ function Login() {
                     <label for="password">Password</label>
                     <input type="password" className="form-control" id="password" name="password" placeholder="password" required></input>
                 </div>
-                <button type="submit" className="btn btn-primary" onClick={tryLogin}>Login</button>
+                <button type="submit" className="btn btn-primary">Login</button>
             </form>
         </Centered>
     )

@@ -65,7 +65,8 @@ def create_new_club(req_json):
         return jsonify({'message':'Bad request'}), 400
     else:
         # try to generate acronym code in the case where no code is provided
-        if 'code' not in req_json:
+        if ('code' not in req_json or req_json['code'] == None 
+                or req_json['code'].strip() == ''):
            req_json['code'] = "".join(word[0] for word in req_json['name'].split()) 
         try:
             tag_objs = []
@@ -80,7 +81,8 @@ def create_new_club(req_json):
                         db.session.commit()
                     tag_objs.append(tag_obj)
             new_club = Club(req_json['code'], req_json['name'], 
-                req_json['description'] if 'description' in req_json else None, tag_objs)
+                req_json['description'] if 'description' in req_json 
+                and req_json['description'] != '' else None, tag_objs)
             db.session.add(new_club)
             db.session.commit()
         except exc.IntegrityError:
@@ -356,6 +358,12 @@ def get_clubs_by_tag(tag):
             'tags': list(map(lambda x: x.tag_name, club.tags))
         })
     return jsonify({'clubs': club_list}), 200
+
+@app.route('/api/all_tags', methods=['GET'])
+def get_all_tags():
+    all_tags = [tag.tag_name for tag in Tag.query.all()]
+    return jsonify(all_tags), 200
+
 
 if __name__ == '__main__':
     app.run()

@@ -50,7 +50,9 @@ For the Club model, I made the primary key the id. I wasn't sure
 if the club's code could change or not - maybe a user changes the 
 club name and wants to then change the club code as well, or if 
 the code gets leaked. But, if the club code is guaranteed to 
-never change, then it could be the primary key too.
+never change, then it could be the primary key too. Also, I could 
+have made the description required... but I don't think it's completely 
+necessary since some clubs have names that are self-explanatory.
 
 ```
 class Tag(db.Model):
@@ -149,6 +151,10 @@ I also noticed that the frontend was still sending
 form data instead of JSON, so I had to add a check 
 for that and a function to convert the form data 
 into JSON.
+
+UPDATE: After working on the frontend, I changed the request 
+from form data to JSON data in the React code, so this check for 
+form data isn't necessary anymore.
 
 Sample Request Body:
 ```
@@ -294,6 +300,10 @@ Sample request body:
 This `GET` request will fetch all of the clubs that have the tag 
 specified in the route.
 
+#### GET `/api/all_tags`
+This `GET` request will get the list of all tags in the database. This 
+is useful for the multiselect tags for creating a club on the frontend.
+
 ## Bonus Features
 ### Scraping
 The first bonus feature I decided to tackle was the web scraper. 
@@ -339,23 +349,34 @@ Routes I added:
 who've favorited the club. 
 * A `PATCH` route that could update User information. 
 * A `GET` route that returns all the clubs containing a specified tag.
+* A `GET` route to get a list of all the tags.
 
 More detail on these routes are above in the API section.
 
 ### Frontend/Full-Stack
-The fifth bonus feature I worked on was the frontend. For this part, I 
-mainly worked on writing code that allowed the frontend to support tags. 
-I was able to get the tabs to display on the cards for each club.
+The fifth bonus feature I worked on was the frontend.
+
+The first feature in the frontend I made was to support tags on the home page. 
+I was able to get the tags to display on the cards for each club. 
 
 I also wrote code that allows a user to click on one of these tags to filter the 
 club list by that tag. And if the user wanted to go back to the main list, 
 the could unclick the tag and do so. This utilized the a `GET` request on 
-one of the bonus API routes I implemented, `/api/clubs/:tag`.
+one of the bonus API routes I implemented, `/api/clubs/:tag`, which filters 
+clubs by tag.
 
 Additionally, I implemented login and logout on the frontend that will maintain 
 the user's session. Logging in is important because only then can you create 
 clubs due to the restriction that the `POST` request to create a club is only 
 authorized for signed in users.
+
+After implementing login/logout, I updated the submit clubs page. I updated the 
+page to allow for tags to be selected when creating a club. The multiselect field 
+for the tags were populated by the results of the `GET` request on a bonus route 
+called `/api/all_tags`. On the frontend, I also added a text input field that allows 
+users to add their own custom tags that didn't exist before. When the user presses the 
+add tag button, with a custom tag in this input field, the new tag will be displayed in the 
+multiselect list for tags. The API handles creating clubs that have new tags.
 
 ## Installation
 

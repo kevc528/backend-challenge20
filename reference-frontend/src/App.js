@@ -24,7 +24,7 @@ function App() {
                             <li><Link className="nav-link" to="/">Home</Link></li>
                             <li><Link className="nav-link" to="/submit">Submit</Link></li>
                             <li><Link className="nav-link" to="/login">Login</Link></li>
-                            <li><a className="nav-link" href="http://localhost:5000/api/logout">Logout</a></li>
+                            <li><a style={{cursor: "pointer"}} className="nav-link" onClick={logout}>Logout</a></li>
                         </ul>
                     </div>
                 </nav>
@@ -42,6 +42,16 @@ function App() {
             </Switch>
         </Router>
     )
+}
+
+function logout() {
+    fetch("/api/logout")
+        .then(res => {
+            res.json().then(json => {
+                alert(json.message)
+                window.location.href = '/'
+            })
+        });
 }
 
 export default App;
