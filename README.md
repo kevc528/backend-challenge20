@@ -332,13 +332,25 @@ use the username stored by the session.
 
 #### New API Routes
 The fourth bonus feature was one that I made up. I decided to add 
-a few additonal routes that made sense. A route I added allowed 
-clubs to `GET` a mailing list of user's who've favorited the club. 
-Another route I added allowed a `PATCH` that could update User 
-information. I also added a `GET` route that returns all the clubs 
-containing a specified tag.
+a few additonal routes that made sense. 
+
+Routes I added:
+* A `GET` route that allowed clubs to get a mailing list of user's 
+who've favorited the club. 
+* A `PATCH` route that could update User information. 
+* A `GET` route that returns all the clubs containing a specified tag.
 
 More detail on these routes are above in the API section.
+
+#### Frontend/Full-Stack
+The fifth bonus feature I worked on was the frontend. For this part, I 
+mainly worked on writing code that allowed the frontend to support tags. 
+I was able to get the tabs to display on the cards for each club.
+
+I also wrote code that allows a user to click on one of these tags to filter the 
+club list by that tag. And if the user wanted to go back to the main list, 
+the could unclick the tag and do so. This utilized the a `GET` request on 
+one of the bonus API routes I implemented, `/api/clubs/:tag`.
 
 ## Installation
 
