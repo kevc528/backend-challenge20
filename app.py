@@ -354,7 +354,7 @@ def get_clubs_by_tag(tag):
             'description': club.description,
             'tags': list(map(lambda x: x.tag_name, club.tags))
         })
-    return jsonify(club_list), 200
+    return jsonify({'clubs': club_list}), 200
 
 if __name__ == '__main__':
     app.run()
