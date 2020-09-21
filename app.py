@@ -295,7 +295,7 @@ def logout():
     username = session.pop('username', None)
     if username != None:
         return jsonify({'message':'Logged out of ' + username}), 200
-    return jsonify({'message':'success'}), 200
+    return jsonify({'message':'No user logged in'}), 200
 
 @app.route('/api/emails/<code>', methods=['GET'])
 def mailing_list(code):
