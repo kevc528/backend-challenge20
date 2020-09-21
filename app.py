@@ -74,12 +74,14 @@ def create_new_club(req_json):
                 tag_strings = req_json['tags']
                 # need to create any non-existing tags
                 for tag in tag_strings:
-                    tag_obj = Tag.query.filter_by(tag_name=tag).first()
-                    if tag_obj == None:
-                        tag_obj = Tag(tag)
-                        db.session.add(tag_obj)
-                        db.session.commit()
-                    tag_objs.append(tag_obj)
+                    formatted_tag = tag.title().strip()
+                    if formatted_tag != '':
+                        tag_obj = Tag.query.filter_by(tag_name=formatted_tag).first()
+                        if tag_obj == None:
+                            tag_obj = Tag(formatted_tag)
+                            db.session.add(tag_obj)
+                            db.session.commit()
+                        tag_objs.append(tag_obj)
             new_club = Club(req_json['code'], req_json['name'], 
                 req_json['description'] if 'description' in req_json 
                 and req_json['description'] != '' else None, tag_objs)

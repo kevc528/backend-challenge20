@@ -26,6 +26,7 @@ function Login() {
     )
 }
 
+// calls the API to attempt login, and if successful redirects to home
 function tryLogin(e) {
     e.preventDefault()
     let username = document.getElementById('username').value;

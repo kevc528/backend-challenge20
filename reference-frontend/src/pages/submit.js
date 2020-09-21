@@ -17,8 +17,9 @@ function Submit() {
     }, [])
 
     function addTag() {
-        let tag = document.getElementById('new_tag').value
-        if (tag.trim() != '' && !tags.includes(tag)) {
+        let tag = document.getElementById('new_tag').value.trim()
+        tag = tag.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();})
+        if (tag !== '' && !tags.includes(tag)) {
             setTags([...tags, tag])
             document.getElementById('new_tag').value = ''
         }
@@ -57,11 +58,14 @@ function Submit() {
     )
 }
 
+// sends the POST request to the api clubs route to create club
+// if successful, redirect back to home page
 function submitClub(e) {
     e.preventDefault()
     let name = document.getElementById('name').value;
     let code = document.getElementById('code').value;
     let description = document.getElementById('description').value;
+    // retrieves the selected tags
     let tags = Array.from(document.getElementById('tags').querySelectorAll("option:checked"), e => e.value);
     if (name.trim() === '') {
         alert('Not a valid name!')

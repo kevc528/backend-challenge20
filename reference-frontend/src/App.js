@@ -44,6 +44,7 @@ function App() {
     )
 }
 
+// logout of an account and redirect to home
 function logout() {
     fetch("/api/logout")
         .then(res => {

@@ -11,6 +11,7 @@ function ClubCardList() {
             .then((result) => setClubs(result.clubs))
     }, [])
 
+    // filter the clubs by a certain tag
     function tagClicked(clickedTag) {
         if (tag === clickedTag) {
             allClubs()
@@ -24,6 +25,7 @@ function ClubCardList() {
         }
     }
 
+    // unfilter the clubs, all clubs show
     function allClubs() {
         fetch("/api/clubs")
             .then(res => res.json())

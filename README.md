@@ -145,7 +145,10 @@ for; I just assumed it was related to the club and
 not something that was random. Tags and description 
 are optional. It's good to note that any tags used that 
 didn't exist before, will be created in the database
-as well.
+as well. When tags are created in the database, I made 
+sure to maintain consistent capitalization and check 
+with that capitalization/format to make sure 
+there aren't duplicate tags with different capitalizations.
 
 I also noticed that the frontend was still sending 
 form data instead of JSON, so I had to add a check 
@@ -373,10 +376,14 @@ authorized for signed in users.
 After implementing login/logout, I updated the submit clubs page. I updated the 
 page to allow for tags to be selected when creating a club. The multiselect field 
 for the tags were populated by the results of the `GET` request on a bonus route 
-called `/api/all_tags`. On the frontend, I also added a text input field that allows 
+called `/api/all_tags`. In the form, I also added a text input field that allows 
 users to add their own custom tags that didn't exist before. When the user presses the 
 add tag button, with a custom tag in this input field, the new tag will be displayed in the 
-multiselect list for tags. The API handles creating clubs that have new tags.
+multiselect list for tags IF the tag didn't exist already. I made sure to make the 
+capitalization of the input consistent with how the API creates/returns tags so the tags all have 
+consistent capitalization and there are no duplicate tags that are added in the multiselect with different 
+capitalizations. As for adding new tags that weren't in the database before, the API route 
+for creating a new club handles this.
 
 ## Installation
 

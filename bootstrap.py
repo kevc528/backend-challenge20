@@ -29,12 +29,13 @@ def create_clubs_from_json(clubs):
     for club in clubs:
         tag_objs = []
         for tag in club['tags']:
-            if tag not in tag_map:
-                tag_obj = Tag(tag)
-                tag_map[tag] = tag_obj
+            formatted_tag = tag.title().strip()
+            if formatted_tag not in tag_map:
+                tag_obj = Tag(formatted_tag)
+                tag_map[formatted_tag] = tag_obj
                 db.session.add(tag_obj)
                 db.session.commit()
-            tag_objs.append(tag_map[tag])
+            tag_objs.append(tag_map[formatted_tag])
         db.session.add(Club(club['code'], club['name'], club['description'], tag_objs))
     db.session.commit()
 
