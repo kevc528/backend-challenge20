@@ -374,13 +374,15 @@ clubs due to the restriction that the `POST` request to create a club is only
 authorized for signed in users.
 
 After implementing login/logout, I updated the submit clubs page. I updated the 
-page to allow for tags to be selected when creating a club. The multiselect field 
+page to include a multiselect field so users can select tags when creating a club. 
+The multiselect field 
 for the tags were populated by the results of the `GET` request on a bonus route 
 called `/api/all_tags`. In the form, I also added a text input field that allows 
 users to add their own custom tags that didn't exist before. When the user presses the 
-add tag button, with a custom tag in this input field, the new tag will be displayed in the 
-multiselect list for tags IF the tag didn't exist already. I made sure to make the 
-capitalization of the input consistent with how the API creates/returns tags so the tags all have 
+add tag button, with a custom tag in this input field, the new tag will be added to the 
+multiselect list for tags IF the tag didn't exist already. Then the user can select this new tag. 
+I made sure to make the 
+capitalization of the input (new custom tag) consistent with how the API creates/returns tags so all tags have 
 consistent capitalization and there are no duplicate tags that are added in the multiselect with different 
 capitalizations. As for adding new tags that weren't in the database before, the API route 
 for creating a new club handles this.
