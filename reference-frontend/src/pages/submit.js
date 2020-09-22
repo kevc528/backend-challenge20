@@ -11,7 +11,7 @@ function Submit() {
     const [tags, setTags] = useState([])
 
     useEffect(() => {
-        fetch("http://localhost:5000/api/all_tags")
+        fetch("/api/all_tags")
             .then(res => res.json())
             .then(result => setTags(result))
     }, [])
@@ -22,6 +22,42 @@ function Submit() {
         if (tag !== '' && !tags.includes(tag)) {
             setTags([...tags, tag])
             document.getElementById('new_tag').value = ''
+        }
+    }
+
+    // sends the POST request to the api clubs route to create club
+    // if successful, redirect back to home page
+    function submitClub(e) {
+        e.preventDefault()
+        let name = document.getElementById('name').value;
+        let code = document.getElementById('code').value;
+        let description = document.getElementById('description').value;
+        // retrieves the selected tags
+        let tags = Array.from(document.getElementById('tags').querySelectorAll("option:checked"), e => e.value);
+        if (name.trim() === '') {
+            alert('Not a valid name!')
+        } else {
+            fetch("/api/clubs", {
+                credentials: 'include',
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    name: name,
+                    code: code,
+                    description: description,
+                    tags: tags
+                })
+            }).then(res => {
+                    if (res.status === 200) {
+                        window.location.href = '/'
+                    } else if (res.status === 401) {
+                        alert('Please login to create a club')
+                    } else if (res.status === 400) {
+                        alert('Club create failed. There is a duplicate field')
+                    } else {
+                        alert('Club create failed')
+                    }
+                })
         }
     }
 
@@ -56,42 +92,6 @@ function Submit() {
             </form>
         </Centered>
     )
-}
-
-// sends the POST request to the api clubs route to create club
-// if successful, redirect back to home page
-function submitClub(e) {
-    e.preventDefault()
-    let name = document.getElementById('name').value;
-    let code = document.getElementById('code').value;
-    let description = document.getElementById('description').value;
-    // retrieves the selected tags
-    let tags = Array.from(document.getElementById('tags').querySelectorAll("option:checked"), e => e.value);
-    if (name.trim() === '') {
-        alert('Not a valid name!')
-    } else {
-        fetch("http://localhost:5000/api/clubs", {
-            credentials: 'include',
-            method: 'POST',
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                name: name,
-                code: code,
-                description: description,
-                tags: tags
-            })
-        }).then(res => {
-                if (res.status === 200) {
-                    window.location.href = '/'
-                } else if (res.status === 401) {
-                    alert('Please login to create a club')
-                } else if (res.status === 400) {
-                    alert('Club create failed. There is a duplicate field')
-                } else {
-                    alert('Club create failed')
-                }
-            })
-    }
 }
 
 export default Submit

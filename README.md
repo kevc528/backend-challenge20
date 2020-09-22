@@ -387,6 +387,11 @@ consistent capitalization and there are no duplicate tags that are added in the 
 capitalizations. As for adding new tags that weren't in the database before, the API route 
 for creating a new club handles this.
 
+Next, I implemented individual club pages. You can navigate to these by clicking the name (header) of the club 
+on the cards in the home page. This will bring you to a separate page for the club you clicked on. On this 
+page, you can view comments and post your own comments (if you're signed in). If I had more time, I would've 
+also implemented favoriting clubs on this page.
+
 ## Installation
 
 1. Click the green "use this template" button to make your own copy of this repository, and clone it. Make sure to create a **private repository**.

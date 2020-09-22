@@ -9,6 +9,7 @@ import {
     Route,
     Link
 } from "react-router-dom";
+import ClubPage from './pages/clubPage';
 
 function App() {
     return (
@@ -43,6 +44,9 @@ function App() {
                 </Route>
                 <Route path="/signup">
                     <Signup />
+                </Route>
+                <Route path="/club">
+                    <ClubPage />
                 </Route>
             </Switch>
         </Router>

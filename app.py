@@ -225,7 +225,7 @@ def add_comment(club, req_json):
     comment_obj = Comment(user.id, club_obj.id, req_json['text'])
     club_obj.comments.append(comment_obj)
     db.session.commit()
-    return jsonify({'message':'success'}), 200
+    return jsonify({'message':'success', 'author':username}), 200
 
 def get_club_comments(club):
     """

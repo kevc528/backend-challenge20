@@ -8,6 +8,29 @@ const Centered = styled.div`
 `
 
 function Login() {
+
+    // calls the API to attempt login, and if successful redirects to home
+    function tryLogin(e) {
+        e.preventDefault()
+        let username = document.getElementById('username').value;
+        let password = document.getElementById('password').value;
+        fetch("/api/login", {
+            credentials: 'include',
+            method: 'POST',
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        }).then(res => {
+            if (res.status === 200) {
+                window.location.href = '/'
+            } else {
+                alert('Error logging in. Please verify credentials')
+            }
+        })
+    }
+
     return (
         <Centered className="col-md-6 mt-4">
             <form onSubmit={tryLogin}>
@@ -24,28 +47,6 @@ function Login() {
             </form>
         </Centered>
     )
-}
-
-// calls the API to attempt login, and if successful redirects to home
-function tryLogin(e) {
-    e.preventDefault()
-    let username = document.getElementById('username').value;
-    let password = document.getElementById('password').value;
-    fetch("http://localhost:5000/api/login", {
-        credentials: 'include',
-        method: 'POST',
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            username: username,
-            password: password
-        })
-    }).then(res => {
-        if (res.status === 200) {
-            window.location.href = '/'
-        } else {
-            alert('Error logging in. Please verify credentials')
-        }
-    })
 }
 
 export default Login

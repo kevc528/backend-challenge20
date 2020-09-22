@@ -1,5 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
+import {
+    useHistory
+} from "react-router-dom";
 
 const ClubCardContainer = styled.div`
     position: relative;
@@ -19,6 +22,14 @@ const ClubDescription = styled.p`
     height: 55%;
 `
 
+const ClubTitle = styled.h4`
+    color: black;
+    cursor: pointer;
+    &:hover {
+        text-decoration: underline;
+    }
+`
+
 var selectedTag = "";
 
 const ClubTags = styled.button.attrs(props => ({
@@ -34,9 +45,19 @@ const ClubTags = styled.button.attrs(props => ({
 
 function ClubCard(props) {
     selectedTag = props.selectedTag;
+    const history = useHistory()
+    function redirectClub() {
+        history.push(
+           '/club/' + props.club.name,
+            {
+                name: props.club.name,
+                description: props.club.description
+            }
+        )
+    }
     return (
         <ClubCardContainer>
-            <h4>{props.club.name}</h4>
+            <ClubTitle onClick={redirectClub}>{props.club.name}</ClubTitle>
             <hr></hr>
             <ClubDescription>{props.club.description}</ClubDescription>
             <section id="tags">
