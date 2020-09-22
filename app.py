@@ -178,10 +178,11 @@ def modify_club(code):
             return jsonify({'message':'Bad request'}), 400 
         tag_objs = []
         for tag in req_json['tags']:
-            tag_obj = Tag.query.filter_by(tag_name=tag).first()
+            formatted_tag = tag.title().strip()
+            tag_obj = Tag.query.filter_by(tag_name=formatted_tag).first()
             # creating any new tags
             if tag_obj == None:
-                tag_obj = Tag(tag)
+                tag_obj = Tag(formatted_tag)
                 db.session.add(tag_obj)
                 db.session.commit()
             tag_objs.append(tag_obj)
