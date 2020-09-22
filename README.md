@@ -9,25 +9,25 @@ related. For example, clubs and tags are related because clubs
 can have tags describing them. And users and clubs are related 
 because users can favorite clubs.
 
+The first relation that I defined was the club and tag relation. 
+This is a many to many relationship as clubs can have many tags 
+and a tag can be part of many clubs.
 ```
 tag_relations = db.Table('tag_relations',
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True),
     db.Column('club_id', db.Integer, db.ForeignKey('club.id'), primary_key=True)
 )
 ```
-The first relation that I defined was the club and tag relation. 
-This is a many to many relationship as clubs can have many tags 
-and a tag can be part of many clubs.
 
+The second relation I defined was favorites, which links users to 
+their favorited clubs. This is similar to the club and tag 
+relationship above.
 ```
 favorites = db.Table('favorites',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
     db.Column('club_id', db.Integer, db.ForeignKey('club.id'), primary_key=True)
 )
 ```
-The second relation I defined was favorites, which links users to 
-their favorited clubs. This is similar to the club and tag 
-relationship above.
 
 Another relationship I had was comments, which you'll 
 see below within the models. Comments have a one-to-many 
@@ -36,6 +36,13 @@ connected to one club or one user (the author), but users
 and clubs can have many comments.
 
 #### Models
+For the Club model, I made the primary key the id. I wasn't sure 
+if the club's code could change or not - maybe a user changes the 
+club name and wants to then change the club code as well, or if 
+the code gets leaked. But, if the club code is guaranteed to 
+never change, then it could be the primary key too. Also, I could 
+have made the description required... but I don't think it's completely 
+necessary since some clubs have names that are self-explanatory.
 ```
 class Club(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -46,21 +53,8 @@ class Club(db.Model):
     favorites = db.relationship('User', secondary=favorites)
     comments = db.relationship('Comment', backref='comments')
 ```
-For the Club model, I made the primary key the id. I wasn't sure 
-if the club's code could change or not - maybe a user changes the 
-club name and wants to then change the club code as well, or if 
-the code gets leaked. But, if the club code is guaranteed to 
-never change, then it could be the primary key too. Also, I could 
-have made the description required... but I don't think it's completely 
-necessary since some clubs have names that are self-explanatory.
 
-```
-class Tag(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    tag_name = db.Column(db.String(80), unique=True, nullable=False)
-    clubs = db.relationship('Club', secondary=tag_relations)
-```
-Same concept here... if the tag name never changes then I 
+Same concept here with tags... if the tag name never changes then I 
 could've made that the primary key. But to be safe, I made the 
 id a primary key in case a Locust Labs member wanted to change 
 the capitalization or something about a tag name.
@@ -68,7 +62,19 @@ the capitalization or something about a tag name.
 Clubs and tags both store information about their relationship 
 defined above. This makes it easy to find tags for a club, and 
 clubs for a tag.
+```
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tag_name = db.Column(db.String(80), unique=True, nullable=False)
+    clubs = db.relationship('Club', secondary=tag_relations)
+```
 
+The User model is pretty simple. It would maintain the user's 
+information like username, password, name, email, year, major. Note, 
+that even though password is stored, it is a secure hashed 
+password using bcrypt. Also, I wanted to be able to access 
+favorites and comments through relationships. The primary key 
+is id, because name and username could potentially change.
 ```
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -81,13 +87,11 @@ class User(db.Model):
     favorites = db.relationship('Club', secondary=favorites)
     comments = db.relationship('Comment', backref='club_comments')
 ```
-The User model is pretty simple. It would maintain the user's 
-information like username, password, name, email, year, major. Note, 
-that even though password is stored, it is a secure hashed 
-password using bcrypt. Also, I wanted to be able to access 
-favorites and comments through relationships. The primary key 
-is id, because name and username could potentially change.
 
+Here is the model for comments, which was a bonus feature 
+that I pursued. Here we see the user_id and club_id 
+columns, which link the comment to the author and the 
+club it is talking about.
 ```
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -95,10 +99,6 @@ class Comment(db.Model):
     club_id = db.Column(db.Integer, db.ForeignKey('club.id'), nullable=False)
     text = db.Column(db.Text, nullable=False)
 ```
-Here is the model for comments, which was a bonus feature 
-that I pursued. Here we see the user_id and club_id 
-columns, which link the comment to the author and the 
-club it is talking about.
 
 ### API
 Here are the REST API routes I implemented. I tried to do as much 
