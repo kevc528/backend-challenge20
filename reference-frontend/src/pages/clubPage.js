@@ -14,7 +14,7 @@ function ClubPage() {
     useEffect(() => {
         fetch("/api/" + club + "/comment")
             .then(res => res.json())
-            .then((result) => {console.log(result);setComments(result)})
+            .then((result) => {setComments(result.reverse())})
     }, [])
 
     function submitComment(e) {
@@ -35,7 +35,7 @@ function ClubPage() {
             if (res.status === 200) {
                 res.json().then(json => {
                     let author = json.author;
-                    setComments([...comments, {text:comment, author: author}]);
+                    setComments([{text:comment, author: author}, ...comments]);
                 })
             } else if (res.status === 401) {
                 alert('Please login to comment')
