@@ -310,7 +310,7 @@ Sample request body:
 
 #### GET `/api/clubs/:tag`
 This `GET` request will fetch all of the clubs that have the tag 
-specified in the route.
+specified in the route. Remember here that tags are capitalized.
 
 #### GET `/api/all_tags`
 This `GET` request will get the list of all tags in the database. This 
