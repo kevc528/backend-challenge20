@@ -36,6 +36,7 @@ function ClubPage() {
                 res.json().then(json => {
                     let author = json.author;
                     setComments([{text:comment, author: author}, ...comments]);
+                    document.getElementById('comment').value = "";
                 })
             } else if (res.status === 401) {
                 alert('Please login to comment')
